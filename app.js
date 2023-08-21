@@ -7,14 +7,14 @@ const PORT = process.env.PORT || 3005;
 // Endpoint to fetch data from another API
 app.get("/load", async (req, res) => {
   const apiUrl = "https://api.example.com/data"; // Replace with the actual API URL
-  const customHeaders = {
-    ...req.headers,
-    origin: "https://your-custom-origin.com",
-  };
+
+  const customHeaders = { ...req.headers };
+  const queryParameters = req.query; // Get query parameters from the URL
 
   try {
     const response = await axios.get(apiUrl, {
-      headers: customHeaders, // Pass through the modified headers
+      headers: customHeaders,
+      params: queryParameters, // Pass through the query parameters
     });
 
     res.json(response.data);
