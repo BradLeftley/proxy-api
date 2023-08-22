@@ -32,7 +32,7 @@ app.get(`${process.env.ENDPOINT}`, cors(), async (req, res) => {
   })
   .catch(function (error) {
     console.log("IN ERROR")
-    console.log(error);
+    res.status(500).json({ error: error});
   });
 
 });
