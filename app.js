@@ -1,29 +1,44 @@
 const express = require("express");
 const axios = require("axios");
-
+const cors = require('cors')
 const app = express();
 const PORT = process.env.PORT || 3005;
+require('dotenv').config();
 
-// Endpoint to fetch data from another API
-app.get("/load", async (req, res) => {
-  const apiUrl = "https://api.example.com/data"; // Replace with the actual API URL
+app.options('*', cors()) 
 
-  const customHeaders = { ...req.headers };
-  const queryParameters = req.query; // Get query parameters from the URL
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
-  try {
-    const response = await axios.get(apiUrl, {
-      headers: customHeaders,
-      params: queryParameters, // Pass through the query parameters
-    });
+app.get(`${process.env.ENDPOINT}`, cors(), async (req, res) => {
+  console.log("🕵️‍♂️ Proxying Request 🔄 : ", req.url)
 
+  var config = {
+    method: 'get',
+    url: `${process.env.SERVER_URL}${req.url}`,
+    headers: { 
+      'Authorization': req.headers['authorization'], 
+      'Origin': process.env.ORIGIN, 
+      'Scope': 'user',
+      
+    }
+  };
+  
+  axios(config)
+  .then(async function (response) {
+    console.log("✅ RESPONSE")
+    await response
+    console.log(response.data);
     res.json(response.data);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "An error occurred while fetching data" });
-  }
+  })
+  .catch(function (error) {
+    console.log("IN ERROR")
+    console.log(error);
+  });
+
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`📊 Proxy Server is running on port ${PORT}`);
 });
+
+
